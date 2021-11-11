@@ -1,0 +1,43 @@
+{
+  "name": "vkminiappboilerplate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env PORT=10888 react-scripts start",
+    "build": "react-scripts build",
+    "deploy": "vk-miniapps-deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@vkontakte/vk-miniapps-deploy": "0.0.19",
+    "cross-env": "^5.2.1",
+    "react-hot-loader": "^4.13.0",
+    "react-scripts": "^2.1.8",
+    "redux-devtools-extension": "^2.13.8"
+  },
+  "dependencies": {
+    "@vkontakte/icons": "^1.129.0",
+    "@vkontakte/vk-bridge": "^2.4.2",
+    "@vkontakte/vkjs": "^0.22.1",
+    "@vkontakte/vkui": "^4.17.0",
+    "babel-eslint": "^9.0.0",
+    "chalk": "^2.4.2",
+    "core-js": "^2.6.11",
+    "matter-js": "^0.16.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.0",
+    "redux-thunk": "^2.3.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

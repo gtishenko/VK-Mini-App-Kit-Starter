@@ -1,0 +1,19 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+*.lock
+
+# Dependency directories
+package-lock.json
+/node_modules
+/API/node_modules
+
+# Optional npm cache directory
+.npm
+
+# Prod Bundle
+/build
+
+.vscode
+.idea
