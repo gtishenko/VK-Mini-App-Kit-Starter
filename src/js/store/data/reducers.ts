@@ -1,10 +1,22 @@
 import {SET_DATA} from './actionTypes';
 
-const initialState = {
-    scrollPositions: {}
+interface State {
+    
+}
+
+const initialState: State = {
+    
 };
 
-export const dataReducer = (state = initialState, action) => {
+interface IAction {
+    readonly type: string,
+    readonly payload: {
+        variable: string,
+        value: any
+    }
+}
+
+export const dataReducer = (state = initialState, action: IAction) => {
 
     switch (action.type) {
         

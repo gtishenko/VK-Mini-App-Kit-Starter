@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env PORT=10888 react-scripts start",
-    "build": "react-scripts build",
+    "build": "tsc",
     "deploy": "vk-miniapps-deploy"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/react": "^17.0.34",
     "@vkontakte/vk-miniapps-deploy": "0.0.19",
     "cross-env": "^5.2.1",
     "react-hot-loader": "^4.13.0",
@@ -32,7 +33,8 @@
     "react-dom": "^16.14.0",
     "react-redux": "^7.2.4",
     "redux": "^4.1.0",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "typescript": "^4.4.4"
   },
   "browserslist": [
     ">0.2%",

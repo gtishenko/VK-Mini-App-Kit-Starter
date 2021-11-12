@@ -1,6 +1,6 @@
 import {SET_DATA} from './actionTypes';
 
-export const setData = (variable, value) => (
+export const setData = (variable: string, value: any) => (
     {
         type: SET_DATA,
         payload: {

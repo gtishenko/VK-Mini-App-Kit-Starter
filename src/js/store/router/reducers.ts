@@ -9,38 +9,72 @@ import {
 } from './actionTypes';
 
 import * as VK from "../../services/VK";
-import {smoothScrollToTop} from "../../services/_functions";
+import { smoothScrollToTop } from "../../services/functions";
 
-const initialState = {
+interface State {
+    activeStory: string | null,
+    activeView: string | null,
+    activePanel: string | null,
+
+    storiesHistory: string[],
+    viewsHistory: {
+        [key: string]: string[]
+    },
+    panelsHistory: {
+        [key: string]: string[]
+    },
+
+    activeModals: {
+        [key: string]: string //[]
+    },
+    modalHistory: {
+        [key: string]: string[]
+    },
+    popouts: {
+        [key: string]: string[] | null
+    },
+
+    scrollPosition: {
+        [key: string]: number
+    }
+}
+
+const initialState: State = {
     activeStory: null,
     activeView: null,
     activePanel: null,
 
     storiesHistory: [],
-    viewsHistory: [],
-    panelsHistory: [],
+    viewsHistory: {},
+    panelsHistory: {},
 
-    activeModals: [],
-    modalHistory: [],
-    popouts: [],
+    activeModals: {},
+    modalHistory: {},
+    popouts: {},
 
-    scrollPosition: []
+    scrollPosition: {}
 };
 
-export const routerReducer = (state = initialState, action) => {
+interface IAction {
+    readonly type: string,
+    readonly payload: any,
+}
+
+export const routerReducer = (state = initialState, action: IAction) => {
 
     switch (action.type) {
 
         case SET_PAGE: {
-            let View = action.payload.view;
-            let Panel = action.payload.panel;
+            if(!state.activeStory || !state.activeView) return state;
+            let View: string = action.payload.view;
+            let Panel: string = action.payload.panel;
 
-            window.history.pushState(null, null);
+            window.history.pushState(null, null!);
 
-            let panelsHistory = state.panelsHistory[View] || [];
-            let viewsHistory = state.viewsHistory[state.activeStory] || [];
+            let panelsHistory: string[] = state.panelsHistory[View] || [];
+            let viewsHistory: string[] = state.viewsHistory[state.activeStory] || [];
 
-            const viewIndexInHistory = viewsHistory.indexOf(View);
+            const viewIndexInHistory: number = viewsHistory.indexOf(View);
 
             if (viewIndexInHistory !== -1) {
                 viewsHistory.splice(viewIndexInHistory, 1);
@@ -65,7 +99,7 @@ export const routerReducer = (state = initialState, action) => {
                 },
                 viewsHistory: {
                     ...state.viewsHistory,
-                    [state.activeStory]: [...viewsHistory, View]
+                    [state.activeStory!]: [...viewsHistory, View]
                 },
                 scrollPosition: {
                     ...state.scrollPosition,
@@ -75,7 +109,7 @@ export const routerReducer = (state = initialState, action) => {
         }
 
         case SET_STORY: {
-            window.history.pushState(null, null);
+            window.history.pushState(null, null!);
 
             let viewsHistory = state.viewsHistory[action.payload.story] || [action.payload.story];
 
@@ -83,15 +117,17 @@ export const routerReducer = (state = initialState, action) => {
             let activeView = viewsHistory[viewsHistory.length - 1];
             let panelsHistory = state.panelsHistory[activeView] || [action.payload.initial_panel];
             let activePanel = panelsHistory[panelsHistory.length - 1];
-
+            
             if (action.payload.story === state.activeStory) {
-                if (panelsHistory.length > 1) {
-                    let firstPanel = panelsHistory.shift();
+                if (panelsHistory.length > 1 ) {
+                    let firstPanel: string | undefined = panelsHistory.shift();
+                    if(!firstPanel) return state;
                     panelsHistory = [firstPanel];
 
                     activePanel = panelsHistory[panelsHistory.length - 1];
                 } else if (viewsHistory.length > 1) {
-                    let firstView = viewsHistory.shift();
+                    let firstView: string | undefined = viewsHistory.shift();
+                    if(!firstView) return state;
                     viewsHistory = [firstView];
 
                     activeView = viewsHistory[viewsHistory.length - 1];
@@ -136,9 +172,10 @@ export const routerReducer = (state = initialState, action) => {
         }
 
         case GO_BACK: {
-            let setView = state.activeView;
-            let setPanel = state.activePanel;
-            let setStory = state.activeStory;
+            if(!state.activeView || !state.activePanel || !state.activeStory) return state;
+            let setView: string = state.activeView;
+            let setPanel: string = state.activePanel;
+            let setStory: string = state.activeStory;
 
             let popoutsData = state.popouts;
 
@@ -233,8 +270,9 @@ export const routerReducer = (state = initialState, action) => {
         }
 
         case OPEN_POPOUT: {
+            if(!state.activeView) return state;
             document.body.style.overflow = "hidden";
-            window.history.pushState(null, null);
+            window.history.pushState(null, null!);
 
             return {
                 ...state,
@@ -246,6 +284,7 @@ export const routerReducer = (state = initialState, action) => {
         }
 
         case CLOSE_POPOUT: {
+            if(!state.activeView) return state;
             document.body.style.overflow = "auto";
             return {
                 ...state,
@@ -257,10 +296,11 @@ export const routerReducer = (state = initialState, action) => {
         }
 
         case OPEN_MODAL: {
-            window.history.pushState(null, null);
+            if(!state.activeView) return state;
+            window.history.pushState(null, null!);
 
-            let activeModal = action.payload.id || null;
-            let modalsHistory = state.modalHistory[state.activeView] ? [...state.modalHistory[state.activeView]] : [];
+            let activeModal: string | null = action.payload.id || null;
+            let modalsHistory: string[] = state.modalHistory[state.activeView] ? [...state.modalHistory[state.activeView]] : [];
 
             if (activeModal === null) {
                 modalsHistory = [];
@@ -284,6 +324,7 @@ export const routerReducer = (state = initialState, action) => {
         }
 
         case CLOSE_MODAL: {
+            if(!state.activeView) return state;
             let activeModal = state.modalHistory[state.activeView][state.modalHistory[state.activeView].length - 2] || null;
             let modalsHistory = state.modalHistory[state.activeView] ? [...state.modalHistory[state.activeView]] : [];
 

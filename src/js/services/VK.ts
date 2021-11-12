@@ -1,9 +1,9 @@
 import bridge from "@vkontakte/vk-bridge";
 
-import {setColorScheme} from "../store/vk/actions";
+import { setColorScheme } from "../store/vk/actions";
 
-export const initApp = () => (dispatch) => {
-    const VKConnectCallback = (e) => {
+export const initApp = () => (dispatch: any) => {
+    const VKConnectCallback = (e: any) => {
         if (e.detail.type === 'VKWebAppUpdateConfig') {
             bridge.unsubscribe(VKConnectCallback);
 

@@ -14,12 +14,18 @@ import {
     PanelHeaderClose
 } from "@vkontakte/vkui";
 
-import {Icon24Dismiss} from '@vkontakte/icons';
+import { Icon24Dismiss } from '@vkontakte/icons';
 
-class ExampleModal extends React.Component {
+interface IProps {
+    id: string,
+    onClose: any,
+    platform?: any,
+}
+
+class ExampleModal extends React.Component<IProps> {
 
     render() {
-        const {id, onClose, platform} = this.props;
+        const { id, onClose, platform } = this.props;
 
         return (
             <ModalPage

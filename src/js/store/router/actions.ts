@@ -1,6 +1,6 @@
 import {SET_PAGE, SET_STORY, GO_BACK, OPEN_POPOUT, CLOSE_POPOUT, OPEN_MODAL, CLOSE_MODAL} from './actionTypes';
 
-export const setStory = (story, initial_panel) => (
+export const setStory = (story: string, initial_panel: string) => (
     {
         type: SET_STORY,
         payload: {
@@ -10,7 +10,7 @@ export const setStory = (story, initial_panel) => (
     }
 );
 
-export const setPage = (view, panel) => (
+export const setPage = (view: string, panel: string) => (
     {
         type: SET_PAGE,
         payload: {
@@ -26,7 +26,7 @@ export const goBack = () => (
     }
 );
 
-export const openPopout = (popout) => (
+export const openPopout = (popout: object) => (
     {
         type: OPEN_POPOUT,
         payload: {
@@ -41,7 +41,7 @@ export const closePopout = () => (
     }
 );
 
-export const openModal = (id) => (
+export const openModal = (id: string) => (
     {
         type: OPEN_MODAL,
         payload: {
