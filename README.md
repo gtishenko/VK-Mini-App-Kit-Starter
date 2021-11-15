@@ -4,8 +4,8 @@
 
 Доработка [vk-mini-app-boilerplate](https://github.com/iSa1vatore/vk-mini-app-boilerplate)
 
-##Установка
-`git clone git://github.com/iSa1vatore/vk-mini-app-boilerplate.git <folder name>`
+## Установка
+`git clone https://github.com/gtishenko/VK-Mini-App-Kit-Starter.git <folder name>`
 
 Перейдите в созданную папку и выполните команды: npm i и npm start, последняя запустит сервер для разработки на http://localhost:10888
 
