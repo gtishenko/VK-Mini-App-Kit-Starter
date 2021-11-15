@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
     SET_PAGE,
     GO_BACK,
@@ -5,16 +7,23 @@ import {
     CLOSE_POPOUT,
     OPEN_MODAL,
     CLOSE_MODAL,
-    SET_STORY
+    SET_STORY,
+    SHOW_SNACKBAR,
+    CLOSE_SNACKBAR
 } from './actionTypes';
 
 import * as VK from "../../services/VK";
 import { smoothScrollToTop } from "../../services/functions";
+import { Icon16ErrorCircleFill, Icon20CheckCircleFillGreen, Icon24WarningTriangleOutline } from '@vkontakte/icons';
+import { Snackbar } from '@vkontakte/vkui';
+import { closeSnackbar } from './actions';
+import { store } from '../../../index';
 
-interface State {
+export interface IRouterReducer {
     activeStory: string | null,
     activeView: string | null,
     activePanel: string | null,
+    activeSnackbar: JSX.Element | null,
 
     storiesHistory: string[],
     viewsHistory: {
@@ -39,10 +48,11 @@ interface State {
     }
 }
 
-const initialState: State = {
+const initialState: IRouterReducer = {
     activeStory: null,
     activeView: null,
     activePanel: null,
+    activeSnackbar: null,
 
     storiesHistory: [],
     viewsHistory: {},
@@ -57,12 +67,51 @@ const initialState: State = {
 
 interface IAction {
     readonly type: string,
-    readonly payload: any,
+    readonly payload?: any,
 }
 
 export const routerReducer = (state = initialState, action: IAction) => {
 
     switch (action.type) {
+
+        case CLOSE_SNACKBAR: {
+            console.log("+");
+            
+            if(!state.activeView) return state;
+            if(!state.activeSnackbar) return state;
+
+            return {
+                ...state,
+                activeSnackbar: null
+            };
+        }
+
+        case SHOW_SNACKBAR: {
+            if(!state.activeView) return state;
+            if(state.activeSnackbar) return state;
+
+            let icon: React.ReactNode;
+            if (action.payload.type === "error") icon = <Icon16ErrorCircleFill width={24} height={24} />;
+            else if (action.payload.type === "success") icon = <Icon20CheckCircleFillGreen width={24} height={24} />;
+            else if (action.payload.type === "warning") icon = <Icon24WarningTriangleOutline />;
+            
+            const snackbar: JSX.Element = (<Snackbar
+                layout="vertical"
+                onClose={() => store.dispatch(closeSnackbar())}
+                before={icon}
+                duration={action.payload.duration}
+            >
+                {action.payload.text}
+            </Snackbar>);
+
+            console.log(snackbar);
+            
+
+            return {
+                ...state,
+                activeSnackbar: snackbar
+            };
+        }
 
         case SET_PAGE: {
             if(!state.activeStory || !state.activeView) return state;
@@ -286,6 +335,7 @@ export const routerReducer = (state = initialState, action: IAction) => {
         case CLOSE_POPOUT: {
             if(!state.activeView) return state;
             document.body.style.overflow = "auto";
+            
             return {
                 ...state,
                 popouts: {
@@ -335,7 +385,7 @@ export const routerReducer = (state = initialState, action: IAction) => {
             } else {
                 modalsHistory.push(activeModal);
             }
-
+            
             return {
                 ...state,
                 activeModals: {

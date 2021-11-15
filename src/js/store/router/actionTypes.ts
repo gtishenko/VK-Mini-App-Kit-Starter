@@ -5,3 +5,5 @@ export const OPEN_POPOUT = 'OPEN_POPOUT';
 export const CLOSE_POPOUT = 'CLOSE_POPOUT';
 export const OPEN_MODAL = 'OPEN_MODAL';
 export const CLOSE_MODAL = 'CLOSE_MODAL';
+export const SHOW_SNACKBAR = 'SHOW_SNACKBAR';
+export const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR';

@@ -1,93 +1,66 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
-import { closePopout, goBack, openModal, openPopout, setPage } from '../../store/router/actions';
+import { useDispatch } from 'react-redux';
 
 import {
+    Alert,
+    Div,
     Group,
+    List,
     Panel,
     PanelHeader,
-    Placeholder,
-    Snackbar
+    SimpleCell
 } from "@vkontakte/vkui";
 
-import { Icon20CheckCircleFillGreen, Icon16ErrorCircleFill, Icon56InfoOutline } from '@vkontakte/icons';
+import { showSnackbar, openModal, openPopout, closePopout } from '../../store/router/actions';
 
 interface IProps {
     id: string,
-    setPage?: any,
-    goBack?: any,
-    openPopout?: any,
-    closePopout?: any,
-    openModal?: any
+    snackbar: JSX.Element | null
 }
 
-interface IState {
-    snackbar?: React.ReactNode | null,
-    internetError?: boolean
+export default function HomePanelBase(props: IProps) {
+    const { id, snackbar } = props;
+    const dispatch = useDispatch();
+
+    function modal() {
+        dispatch(openModal("EXAMPLE_MODAL"));
+    }
+
+    function openSnackbar() {
+        dispatch(showSnackbar("success", "Успешно выполено!"));
+    }
+
+    function alert() {
+        dispatch(openPopout(<Alert
+            actions={[{
+              title: 'Отмена',
+              autoclose: true,
+              mode: 'cancel'
+            }, {
+              title: 'Удалить',
+              autoclose: true,
+              mode: 'destructive',
+            }]}
+            actionsLayout="horizontal"
+            onClose={() => dispatch(closePopout())}
+            header="Удаление документа"
+            text="Вы уверены, что хотите удалить этот документ?"
+          />));
+    }
+
+    return (
+        <Panel id={id}>
+            <PanelHeader>Главная</PanelHeader>
+            <Group>
+                <Div>
+                    <List>
+                        <SimpleCell onClick={() => modal()}>Открыть модалку</SimpleCell>
+                        <SimpleCell onClick={() => openSnackbar()}>Отобразить Snackbar</SimpleCell>
+                        <SimpleCell onClick={() => alert()}>Открыть Alert</SimpleCell>
+                    </List>
+                </Div>
+            </Group>
+            {snackbar}
+        </Panel>
+    )
 }
-
-class HomePanelBase extends React.Component<IProps, IState> {
-
-    constructor(props: IProps) {
-        super(props);
-        
-        this.state = {
-            snackbar: null
-        };
-    }
-
-    showSnackbar(type: 0 | 1, text: string): void {
-        if (this.state.snackbar) return;
-        var icon;
-        if (type === 0) icon = <Icon16ErrorCircleFill width={24} height={24} />;
-        else if (type === 1) icon = <Icon20CheckCircleFillGreen width={24} height={24} />;
-        this.setState({
-            snackbar:
-                <Snackbar
-                    layout="vertical"
-                    onClose={() => this.setState({ snackbar: null })}
-                    before={icon}
-                >
-                    {text}
-                </Snackbar>
-        });
-    }
-
-    componentDidMount() {
-
-    }
-
-    render() {
-        const { id, openModal } = this.props;
-
-        return (
-            <Panel id={id}>
-                <PanelHeader>Главная</PanelHeader>
-                <Group>
-                    <Placeholder
-                        icon={<Icon56InfoOutline />}
-                        header={"Header"}
-                        onClick={() => {
-                            openModal();
-                        }}
-                    >
-                        Привет
-                    </Placeholder>
-                </Group>
-                {this.state.snackbar}
-            </Panel>
-        );
-    }
-
-}
-
-const mapDispatchToProps = {
-    setPage,
-    goBack,
-    openPopout,
-    closePopout,
-    openModal
-};
-
-export default connect(null, mapDispatchToProps)(HomePanelBase);

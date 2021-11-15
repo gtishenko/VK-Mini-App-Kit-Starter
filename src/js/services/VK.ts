@@ -1,17 +1,18 @@
 import bridge from "@vkontakte/vk-bridge";
+import { store } from "../..";
 
 import { setColorScheme } from "../store/vk/actions";
 
 export const initApp = () => (dispatch: any) => {
-    const VKConnectCallback = (e: any) => {
+    const VKBridgeCallback = (e: any) => {
         if (e.detail.type === 'VKWebAppUpdateConfig') {
-            bridge.unsubscribe(VKConnectCallback);
+            bridge.unsubscribe(VKBridgeCallback);
 
-            dispatch(setColorScheme(e.detail.data.scheme));
+            store.dispatch(setColorScheme(e.detail.data.scheme));
         }
     };
 
-    bridge.subscribe(VKConnectCallback);
+    bridge.subscribe(VKBridgeCallback);
     return bridge.send('VKWebAppInit', {}).then(data => {
         return data;
     }).catch(error => {

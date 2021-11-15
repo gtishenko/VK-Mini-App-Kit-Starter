@@ -1,11 +1,9 @@
 import {SET_DATA} from './actionTypes';
 
-interface State {
-    
+export interface IDataReducer {
 }
 
-const initialState: State = {
-    
+const initialState: IDataReducer = {
 };
 
 interface IAction {

@@ -1,10 +1,4 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux'
-import { goBack, closeModal, setStory } from "./js/store/router/actions";
-import { getActivePanel } from "./js/services/functions";
-// import bridge from '@vkontakte/vk-bridge'
-// import { setColorScheme } from "./js/store/vk/actions";
+import React, { useEffect, useState } from 'react';
 
 import {
     Epic,
@@ -22,7 +16,6 @@ import {
     Group,
     Cell,
     Panel,
-    PlatformType,
     Platform
 } from "@vkontakte/vkui";
 
@@ -32,270 +25,169 @@ import MorePanelBase from './js/panels/more/base';
 
 import ExampleModal from './js/components/modals/ExampleModal';
 
-import { Icon28Newsfeed, Icon28NewsfeedOutline, Icon28ServicesOutline, Icon28MessageOutline, Icon28ClipOutline, Icon28UserCircleOutline } from '@vkontakte/icons';
-import { setData } from './js/store/data/actions';
+import { Icon28Newsfeed, Icon28NewsfeedOutline, Icon28ServicesOutline, Icon28MessageOutline, Icon28ClipOutline, Icon28UserCircleOutline, Icon28More } from '@vkontakte/icons';
 
-const vk_platform = new URLSearchParams(window.location.search).get("vk_platform");
+import { goBack, setStory, closeModal } from './js/store/router/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { IStore } from './js/store/reducers';
+import { getActivePanel } from './js/services/functions';
 
-interface IProps {
-    id: string,
-    setStory: any,
-    goBack: any,
-    closeModal: any,
-    setData: any,
+export default function App() {
+    const vk_platform: string | null = new URLSearchParams(window.location.search).get("vk_platform");
+    
+    const [platform, setPlatform] = useState(Platform.IOS);
+    const [lastAndroidBackAction, setLastAndroidBackAction] = useState(0);
+    const [history, setHistory] = useState<any>(undefined);
+    const [popout, setPopout] = useState<any>(null);
 
-    activeView: string | null,
-    activeStory: string | null,
+    const activeView = useSelector((store: IStore) => store.router.activeView);
+    const activeStory = useSelector((store: IStore) => store.router.activeStory);
+    const panelsHistory = useSelector((store: IStore) => store.router.panelsHistory);
+    const activeModals = useSelector((store: IStore) => store.router.activeModals);
+    const popouts = useSelector((store: IStore) => store.router.popouts);
+    const scrollPosition = useSelector((store: IStore) => store.router.scrollPosition);
+    const activePanel = useSelector((store: IStore) => store.router.activePanel);
+    const activeSnackbar = useSelector((store: IStore) => store.router.activeSnackbar);
 
-    panelsHistory: {
-        [key: string]: string[] | null
-    },
-    activeModals: {
-        [key: string]: string /* [] */ | null
-    },
-    popouts: {
-        [key: string]: string[] | null
-    },
-    scrollPosition: {
-        [key: string]: number | null
-    },
+    const dispatch = useDispatch();
 
-    activePanel: string | null,
-    colorScheme: string,
-
-    lastAndroidBackAction: number,
-}
-
-interface IState {
-    platform: PlatformType
-}
-
-class App extends React.Component<IProps, IState> {
-
-    lastAndroidBackAction: number = 0;
-
-    constructor(props: IProps) {
-        super(props);
-
-        this.state = {
-            platform: Platform.IOS
-        };
-
-        this.lastAndroidBackAction = 0;
-    }
-
-    componentDidMount() {
-        const { goBack, scrollPosition, activeStory, activeView, activePanel } = this.props;
-
-        var platform: PlatformType;
-
-        if (vk_platform === 'mobile_web' || vk_platform === 'desktop_web') platform = Platform.VKCOM;
-        else if (vk_platform === 'mobile_android' || vk_platform === 'mobile_android_messenger') platform = Platform.ANDROID;
-        else platform = Platform.IOS;
-
-        this.setState({
-            platform: platform
-        });
+    useEffect(() => {
+        if (vk_platform === 'mobile_web' || vk_platform === 'desktop_web') setPlatform(Platform.VKCOM);
+        else if (vk_platform === 'mobile_android' || vk_platform === 'mobile_android_messenger') setPlatform(Platform.ANDROID);
+        else setPlatform(Platform.IOS)
 
         window.onpopstate = () => {
             let timeNow = +new Date();
 
-            if (timeNow - this.lastAndroidBackAction > 500) {
-                this.lastAndroidBackAction = timeNow;
+            if (timeNow - lastAndroidBackAction > 500) {
+                setLastAndroidBackAction(timeNow);
 
-                goBack();
+                dispatch(goBack());
             } else {
                 window.history.pushState(null, null!);
             }
         };
-    }
+    }, []);
 
-    componentDidUpdate(prevProps: any): void {
-        const { activeView, activeStory, activePanel, scrollPosition } = this.props;
+    useEffect(() => {
+        let pageScrollPosition: number | null = scrollPosition[activeStory + "_" + activeView + "_" + activePanel];
 
-        if (
-            prevProps.activeView !== activeView ||
-            prevProps.activePanel !== activePanel ||
-            prevProps.activeStory !== activeStory
-        ) {
-            let pageScrollPosition: number | null = scrollPosition[activeStory + "_" + activeView + "_" + activePanel];
+        if(pageScrollPosition) window.scroll(0, pageScrollPosition);
+    }, [activeView, activePanel, activeStory]);
 
-            if(pageScrollPosition) window.scroll(0, pageScrollPosition);
-        }
-    }
+    useEffect(() => {
+        setPopout((popouts[activeView!] === undefined) ? null : popouts[activeView!]);
+    }, [popouts, activeView]);
 
-    render() {
-        const { goBack, setStory, closeModal, popouts, activeView, activeStory, activeModals, panelsHistory } = this.props;
+    useEffect(() => {
+        setHistory((panelsHistory[activeView!] === undefined) ? [activeView] : panelsHistory[activeView!]);
+    }, [panelsHistory, activeView]);
+    
+    const activeModal: string | null | undefined = activeModals[activeView!];
 
-        let history: any = (panelsHistory[activeView!] === undefined) ? [activeView] : panelsHistory[activeView!];
-        let popout: string[] | null = (popouts[activeView!] === undefined) ? null : popouts[activeView!];
-        
-        const activeModal: string | null | undefined = activeModals[activeView!];
+    const homeModals: any = (
+        <ModalRoot activeModal={activeModal}>
+            <ExampleModal
+                id="EXAMPLE_MODAL"
+                onClose={() => dispatch(closeModal())}
+            />
+        </ModalRoot>
+    );
 
-        const homeModals: any = (
-            <ModalRoot activeModal={activeModal}>
-                <ExampleModal
-                    id="EXAMPLE_MODAL"
-                    onClose={() => closeModal()}
-                />
-            </ModalRoot>
-        );
+    const isDesktop: boolean = vk_platform === "desktop_web";
+    const hasHeader: boolean = vk_platform !== "desktop_web";
 
-        const isDesktop = vk_platform === "desktop_web";
-        const hasHeader = vk_platform !== "desktop_web";
-
-        return (
-            <ConfigProvider platform={this.state.platform} isWebView={true}>
-                <AdaptivityProvider>
-                    <AppRoot>
-                        <SplitLayout
-                            header={hasHeader && <PanelHeader separator={false} />}
-                            style={{ justifyContent: "center" }}
-                            modal={homeModals}
-                            popout={popout}
-                        >
-                            {isDesktop && (
-                                <SplitCol fixed width="280px" maxWidth="280px">
-                                    <Panel>
-                                        {hasHeader && <PanelHeader />}
-                                        <Group>
-                                            <Cell
-                                                disabled={activeStory === 'home'}
-                                                style={activeStory === 'home' ? {
-                                                    backgroundColor: "var(--button_secondary_background)",
-                                                    borderRadius: 8
-                                                } : {}}
-                                                before={<Icon28NewsfeedOutline />}
-                                                onClick={() => setStory("home", "base")}
-                                            >
-                                                Главная
-                                                </Cell>
-                                            <Cell
-                                                disabled={activeStory === 'services'}
-                                                style={activeStory === 'services' ? {
-                                                    backgroundColor: "var(--button_secondary_background)",
-                                                    borderRadius: 8
-                                                } : {}}
-                                                before={<Icon28ServicesOutline />}
-                                                onClick={() => setStory("services", "base")}
-                                            >
-                                                Сервисы
-                                            </Cell>
-                                            <Cell
-                                                disabled={activeStory === 'messages'}
-                                                style={activeStory === 'messages' ? {
-                                                    backgroundColor: "var(--button_secondary_background)",
-                                                    borderRadius: 8
-                                                } : {}}
-                                                before={<Icon28MessageOutline />}
-                                                onClick={() => setStory("messages", "base")}
-                                            >
-                                                Месенджер
-                                            </Cell>
-                                            <Cell
-                                                disabled={activeStory === 'clips'}
-                                                style={activeStory === 'clips' ? {
-                                                    backgroundColor: "var(--button_secondary_background)",
-                                                    borderRadius: 8
-                                                } : {}}
-                                                before={<Icon28ClipOutline />}
-                                                onClick={() => setStory("clips", "base")}
-                                            >
-                                                Клипы
-                                            </Cell>
-                                            <Cell
-                                                disabled={activeStory === 'profile'}
-                                                style={activeStory === 'profile' ? {
-                                                    backgroundColor: "var(--button_secondary_background)",
-                                                    borderRadius: 8
-                                                } : {}}
-                                                before={<Icon28UserCircleOutline />}
-                                                onClick={() => setStory("profile", "base")}
-                                            >
-                                                Профиль
-                                            </Cell>
-                                        </Group>
-                                    </Panel>
-                                </SplitCol>
-                            )}
-
-                            <SplitCol
-                                animate={!isDesktop}
-                                spaced={isDesktop}
-                                width={isDesktop ? '560px' : '100%'}
-                                maxWidth={isDesktop ? '560px' : '100%'}
-                            >
-                                <Epic activeStory={activeStory!} tabbar={!isDesktop &&
-                                    <Tabbar>
-                                        <TabbarItem
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => {
-                                                setStory('home', 'base');
-                                            }}
-                                            selected={activeStory === 'home'}
+    return (
+        <ConfigProvider platform={platform} isWebView={true}>
+            <AdaptivityProvider>
+                <AppRoot>
+                    <SplitLayout
+                        header={hasHeader && <PanelHeader separator={false} />}
+                        style={{ justifyContent: "center" }}
+                        modal={homeModals}
+                        popout={popout}
+                    >
+                        {isDesktop && (
+                            <SplitCol fixed width="280px" maxWidth="280px">
+                                <Panel>
+                                    {hasHeader && <PanelHeader />}
+                                    <Group>
+                                        <Cell
+                                            disabled={activeStory === 'home'}
+                                            style={activeStory === 'home' ? {
+                                                backgroundColor: "var(--button_secondary_background)",
+                                                borderRadius: 8
+                                            } : {}}
+                                            before={<Icon28NewsfeedOutline />}
+                                            onClick={() => dispatch(setStory("home", "base"))}
                                         >
-                                            <Icon28Newsfeed />
-                                        </TabbarItem>
-                                        <TabbarItem
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => {
-                                                setStory('more', 'base');
-                                            }}
-                                            selected={activeStory === 'more'}
+                                            Главная
+                                            </Cell>
+                                        <Cell
+                                            disabled={activeStory === 'more'}
+                                            style={activeStory === 'more' ? {
+                                                backgroundColor: "var(--button_secondary_background)",
+                                                borderRadius: 8
+                                            } : {}}
+                                            before={<Icon28More />}
+                                            onClick={() => dispatch(setStory("more", "base"))}
                                         >
-                                            <Icon28Newsfeed />
-                                        </TabbarItem>
-                                    </Tabbar>
-                                }>
-                                    <Root id="home" activeView={activeView!}>
-                                        <View
-                                            id="home"
-                                            activePanel={getActivePanel("home")}
-                                            history={history}
-                                            onSwipeBack={() => goBack()}
-                                        >
-                                            <HomePanelBase id="base" />
-                                        </View>
-                                    </Root>
-                                    <Root id="more" activeView={activeView!}>
-                                        <View
-                                            id="more"
-                                            activePanel={getActivePanel("more")}
-                                            history={history}
-                                            onSwipeBack={() => goBack()}
-                                        >
-                                            <MorePanelBase id="base" />
-                                        </View>
-                                    </Root>
-                                </Epic>
+                                            Ещё
+                                        </Cell>
+                                    </Group>
+                                </Panel>
                             </SplitCol>
-                        </SplitLayout>
-                    </AppRoot>
-                </AdaptivityProvider>
-            </ConfigProvider>
-        );
-    }
+                        )}
+
+                        <SplitCol
+                            animate={!isDesktop}
+                            spaced={isDesktop}
+                            width={isDesktop ? '560px' : '100%'}
+                            maxWidth={isDesktop ? '560px' : '100%'}
+                        >
+                            <Epic activeStory={activeStory!} tabbar={!isDesktop &&
+                                <Tabbar>
+                                    <TabbarItem
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => dispatch(setStory('home', 'base'))}
+                                        selected={activeStory === 'home'}
+                                    >
+                                        <Icon28Newsfeed />
+                                    </TabbarItem>
+                                    <TabbarItem
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => dispatch(setStory('more', 'base'))}
+                                        selected={activeStory === 'more'}
+                                    >
+                                        <Icon28More />
+                                    </TabbarItem>
+                                </Tabbar>
+                            }>
+                                <Root id="home" activeView={activeView!}>
+                                    <View
+                                        id="home"
+                                        activePanel={getActivePanel("home")}
+                                        history={history}
+                                        onSwipeBack={() => dispatch(goBack())}
+                                    >
+                                        <HomePanelBase id="base" snackbar={activeSnackbar} />
+                                    </View>
+                                </Root>
+                                <Root id="more" activeView={activeView!}>
+                                    <View
+                                        id="more"
+                                        activePanel={getActivePanel("more")}
+                                        history={history}
+                                        onSwipeBack={() => dispatch(goBack())}
+                                    >
+                                        <MorePanelBase id="base" snackbar={activeSnackbar} />
+                                    </View>
+                                </Root>
+                            </Epic>
+                        </SplitCol>
+                    </SplitLayout>
+                </AppRoot>
+            </AdaptivityProvider>
+        </ConfigProvider>
+    )
 }
-
-const mapStateToProps = (state: any) => {
-    return {
-        activeView: state.router.activeView,
-        activeStory: state.router.activeStory,
-        panelsHistory: state.router.panelsHistory,
-        activeModals: state.router.activeModals,
-        popouts: state.router.popouts,
-        scrollPosition: state.router.scrollPosition,
-        activePanel: state.router.activePanel,
-
-        colorScheme: state.vkui.colorScheme
-    };
-};
-
-const mapDispatchToProps = {
-    setStory,
-    goBack,
-    closeModal,
-    setData
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);

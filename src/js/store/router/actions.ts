@@ -1,4 +1,22 @@
-import {SET_PAGE, SET_STORY, GO_BACK, OPEN_POPOUT, CLOSE_POPOUT, OPEN_MODAL, CLOSE_MODAL} from './actionTypes';
+import { SET_PAGE, SET_STORY, GO_BACK, OPEN_POPOUT, CLOSE_POPOUT, OPEN_MODAL, CLOSE_MODAL, SHOW_SNACKBAR, CLOSE_SNACKBAR } from './actionTypes';
+
+export const closeSnackbar = () => (
+    {
+        type: CLOSE_SNACKBAR,
+    }
+);
+
+type SnackbarTypes = "error" | "success" | "warning";
+export const showSnackbar = (type: SnackbarTypes, text: string, duration?: number) => (
+    {
+        type: SHOW_SNACKBAR,
+        payload: {
+            type: type,
+            text: text,
+            duration: duration,
+        }
+    }
+);
 
 export const setStory = (story: string, initial_panel: string) => (
     {

@@ -47,13 +47,13 @@ export const store = createStore(rootReducer, composeWithDevTools(
     applyMiddleware(thunk),
 ));
 
-store.dispatch(VK.initApp());
+VK.initApp()
 
 store.dispatch(setStory('home', 'base'));
 
 ReactDOM.render(
     <Provider store={store}>
-        <App/>
+        <App />
     </Provider>,
     document.getElementById('root')
 );

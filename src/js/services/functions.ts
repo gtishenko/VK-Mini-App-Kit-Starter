@@ -1,12 +1,12 @@
 import { store } from "../../index";
 
-export async function fetchN(query: string, errorType: 0 | 1 | 2) {
-    const promise = await new Promise((resolve) => {
+export async function fetchN(query: string) {
+    const promise = await new Promise((resolve, reject) => {
         fetch(query).then(response => response.text())
             .then(resolve)
             .catch((error) => {
                 console.error(error);
-                resolve = error;
+                reject(error);
             });
     });
     return promise;
@@ -44,7 +44,7 @@ export const restoreScrollPosition = () => {
 };
 
 type views = "home" | "more";
-export const getActivePanel = (view: string) => {
+export const getActivePanel = (view: views) => {
     let panel: string = store.getState().router["activePanel"];
 
     let panelsHistory: string[] = store.getState().router["panelsHistory"][view];

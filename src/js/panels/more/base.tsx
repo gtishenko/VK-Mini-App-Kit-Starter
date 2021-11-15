@@ -1,57 +1,43 @@
-import React from 'react';
-import { connect } from 'react-redux';
-
-import { setPage } from "../../store/router/actions";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
+    Group,
     Panel,
-    PanelHeader
+    PanelHeader,
+    Placeholder
 } from "@vkontakte/vkui";
+
+import { Icon56InfoOutline } from '@vkontakte/icons';
+// import { IStore } from '../../store/reducers';
+import { showSnackbar, closeSnackbar } from '../../store/router/actions';
 
 interface IProps {
     id: string,
-    setPage?: any,
-    goBack?: any,
-    openPopout?: any,
-    closePopout?: any,
-    openModal?: any
+    snackbar: JSX.Element | null
 }
 
-interface IState {
-    snackbar?: JSX.Element | null,
-    internetError?: boolean
+export default function MorePanelBase(props: IProps) {
+    const { id, snackbar } = props;
+    // const result: any = useSelector((store: IStore) => store.data.test);
+    const dispatch = useDispatch();
+    
+    // componentDidMount
+    useEffect(() => {
+    }, []);
+
+    return (
+        <Panel id={id}>
+            <PanelHeader>Главная 2</PanelHeader>
+            <Group>
+                <Placeholder
+                    icon={<Icon56InfoOutline />}
+                    header="Тут ничего нет"
+                >
+                    Но вы можете это исправить
+                </Placeholder>
+            </Group>
+            {snackbar}
+        </Panel>
+    )
 }
-
-class HomePanelProfile extends React.Component<IProps, IState> {
-
-    constructor(props: IProps) {
-        super(props);
-
-        this.state = {
-            
-        };
-    }
-
-    componentWillUnmount() {
-    }
-
-    componentDidMount() {
-    }
-
-    render() {
-        const { id, setPage } = this.props;
-
-        return (
-            <Panel id={id}>
-                <PanelHeader>Hello!</PanelHeader>
-            </Panel>
-        );
-    }
-
-}
-
-const mapDispatchToProps = {
-    setPage
-};
-
-export default connect(null, mapDispatchToProps)(HomePanelProfile);

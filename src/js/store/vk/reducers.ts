@@ -4,14 +4,14 @@ import {
 } from './actionTypes';
 
 type SchemesList = "bright_light" | "space_gray" | "vkcom_light" | "vkcom_dark";
-interface State {
+export interface IVKUIReducer {
     colorScheme: SchemesList,
 
     activeTab: string[],
     componentScroll: string[]
 }
 
-const initialState: State = {
+const initialState: IVKUIReducer = {
     colorScheme: "bright_light",
 
     activeTab: [],
