@@ -75,8 +75,6 @@ export const routerReducer = (state = initialState, action: IAction) => {
     switch (action.type) {
 
         case CLOSE_SNACKBAR: {
-            console.log("+");
-            
             if(!state.activeView) return state;
             if(!state.activeSnackbar) return state;
 
@@ -141,6 +139,7 @@ export const routerReducer = (state = initialState, action: IAction) => {
                 ...state,
                 activeView: View,
                 activePanel: Panel,
+                activeSnackbar: null,
 
                 panelsHistory: {
                     ...state.panelsHistory,
@@ -202,6 +201,7 @@ export const routerReducer = (state = initialState, action: IAction) => {
                 activeStory: action.payload.story,
                 activeView: activeView,
                 activePanel: activePanel,
+                activeSnackbar: null,
 
                 storiesHistory: storiesHistory,
                 viewsHistory: {

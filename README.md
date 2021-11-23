@@ -14,7 +14,7 @@
 - проект переписан на [TypeScript](https://www.typescriptlang.org/docs/handbook/react.html)
 - исправлено сохранение скролла при переходе по вкладкам
 - исправлено изменение цветовой схемы
-- на [vk.com](https://vk.com) итеперь используется боковой вид меню — [SplitLayout](https://vkcom.github.io/VKUI/#/SplitLayout)
+- на [vk.com](https://vk.com) теперь используется боковой вид меню — [SplitLayout](https://vkcom.github.io/VKUI/#/SplitLayout)
 - проект обновлён до последней версии VKUI
 - отказ от использования VK Connect в пользу VK Bridge
 
